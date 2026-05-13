@@ -110,11 +110,13 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
     const previousOverscrollBehavior = document.body.style.overscrollBehavior;
 
     document.body.style.overflow = "hidden";
-    document.body.style.overscrollBehavior = "contain";
+    document.body.style.overscrollBehavior = "none";
+    document.documentElement.style.overflow = "hidden";
 
     return () => {
       document.body.style.overflow = previousOverflow;
       document.body.style.overscrollBehavior = previousOverscrollBehavior;
+      document.documentElement.style.overflow = "";
     };
   }, [isOpen]);
 
@@ -258,7 +260,7 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
     <>
       <aside
         className={cn(
-          "fixed inset-x-0 bottom-0 z-[1400] flex h-[75dvh] max-h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden rounded-t-lg border-t bg-background shadow-2xl transition-transform duration-200 lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:max-h-none lg:w-[420px] lg:rounded-lg lg:border",
+          "fixed inset-x-0 bottom-0 z-[1400] flex h-[75dvh] max-h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden rounded-t-lg border-t bg-background shadow-2xl transition-transform duration-200 will-change-transform lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:max-h-none lg:w-[420px] lg:rounded-lg lg:border",
           isOpen ? "translate-y-0 pointer-events-auto lg:translate-x-0" : "translate-y-full pointer-events-none lg:translate-x-[calc(100%+2rem)] lg:translate-y-0",
         )}
         aria-hidden={!isOpen}
@@ -285,7 +287,7 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
             <ChatRulesCard expandSignal={rulesExpandSignal} />
           </div>
 
-          <div className="min-h-0 flex-1 touch-pan-y space-y-3 overflow-y-auto overscroll-contain p-3 [-webkit-overflow-scrolling:touch]">
+          <div className="min-h-0 flex-1 space-y-3 overflow-y-scroll overscroll-none p-3" style={{ WebkitOverflowScrolling: "touch" }}>
             {error && (
               <div className="flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 <span>{error}</span>
