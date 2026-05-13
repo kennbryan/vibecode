@@ -31,8 +31,7 @@ export function FloodMarker({ report, onConfirm, hasVoted }: FloodMarkerProps) {
         minWidth={260}
         maxWidth={280}
         maxHeight={480}
-        autoPan
-        autoPanPadding={L.point(120, 120)}
+        autoPan={false}
       >
         <ReportPopup report={report} onConfirm={onConfirm} hasVoted={hasVoted} />
       </Popup>

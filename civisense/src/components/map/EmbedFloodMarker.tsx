@@ -27,7 +27,7 @@ const markerIcons = Object.fromEntries(
 export function EmbedFloodMarker({ report }: EmbedFloodMarkerProps) {
   return (
     <Marker position={[report.latitude, report.longitude]} icon={markerIcons[report.severity]}>
-      <Popup minWidth={220}>
+      <Popup minWidth={220} autoPan={false}>
         <div className="w-56 space-y-2">
           <SeverityBadge severity={report.severity} />
           {report.water_depth && (
