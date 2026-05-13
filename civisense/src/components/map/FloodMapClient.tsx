@@ -126,6 +126,7 @@ export default function FloodMapClient({ initialReports }: FloodMapClientProps) 
           maxZoom={19}
           zoomControl={false}
           attributionControl
+          zoomAnimation={false}
           className="h-full min-h-[520px] w-full"
           preferCanvas
         >

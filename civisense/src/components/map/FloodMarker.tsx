@@ -28,10 +28,10 @@ export function FloodMarker({ report, onConfirm, hasVoted }: FloodMarkerProps) {
   return (
     <Marker position={[report.latitude, report.longitude]} icon={markerIcons[report.severity]}>
       <Popup
-        minWidth={260}
-        maxWidth={280}
-        maxHeight={480}
+        minWidth={190}
+        maxWidth={190}
         autoPan={false}
+        className="civisense-report-popup"
       >
         <ReportPopup report={report} onConfirm={onConfirm} hasVoted={hasVoted} />
       </Popup>

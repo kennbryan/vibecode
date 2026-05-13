@@ -98,7 +98,7 @@ export function ChatComposer({ cooldownUntil, onOpenRules, onSend }: ChatCompose
   }
 
   return (
-    <form onSubmit={submitMessage} className="border-t bg-background p-3">
+    <form onSubmit={submitMessage} className="shrink-0 border-t bg-background px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] pt-3 lg:p-3">
       <div className="space-y-2">
         <Textarea
           value={body}

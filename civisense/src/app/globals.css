@@ -78,6 +78,14 @@
   margin: 0.75rem;
 }
 
+.civisense-report-popup .leaflet-popup-content {
+  margin: 0.5rem;
+}
+
+.civisense-report-popup .leaflet-popup-content-wrapper {
+  max-width: 206px;
+}
+
 .civisense-location-marker {
   position: relative;
 }

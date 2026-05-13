@@ -100,10 +100,10 @@ export function ReportPopup({ report, onConfirm, hasVoted }: ReportPopupProps) {
 
   return (
     <>
-      <div className="w-64 space-y-3">
+      <div className="w-[174px] space-y-1.5">
         {/* Photo */}
         <div
-          className="group relative aspect-[4/3] cursor-zoom-in overflow-hidden rounded-md bg-muted"
+          className="group relative h-28 cursor-zoom-in overflow-hidden rounded-md bg-muted"
           onClick={() => openLightbox(report.photo_url)}
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -114,31 +114,30 @@ export function ReportPopup({ report, onConfirm, hasVoted }: ReportPopupProps) {
         </div>
 
         {/* Info */}
-        <div className="space-y-1.5">
-          <div className="flex items-center justify-between gap-2">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between gap-1.5">
             <SeverityBadge severity={report.severity} />
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: id })}
             </span>
           </div>
           {report.water_depth && (
-            <p className="text-xs font-medium text-primary">
+            <p className="text-[11px] font-medium leading-snug text-primary">
               Kedalaman {WATER_DEPTH_CONFIG[report.water_depth].label.toLowerCase()} ({WATER_DEPTH_CONFIG[report.water_depth].approx})
             </p>
           )}
-          <p className="text-sm leading-snug">{report.comment}</p>
-          <p className="text-xs text-muted-foreground">Oleh {report.reporter_name || "Anonymous"}</p>
+          <p className="line-clamp-2 text-xs leading-snug">{report.comment}</p>
+          <p className="truncate text-[11px] text-muted-foreground">Oleh {report.reporter_name || "Anonymous"}</p>
         </div>
 
         {/* Vote counts */}
-        <div className="flex gap-2 rounded-md border bg-muted/40 px-3 py-2 text-xs">
+        <div className="grid gap-0.5 rounded-md border bg-muted/40 px-2 py-1.5 text-[11px]">
           <span className="flex items-center gap-1 text-blue-600">
-            <Droplets className="size-3.5" />
+            <Droplets className="size-3" />
             <b>{report.confirmation_count}</b> masih banjir
           </span>
-          <span className="mx-1 text-border">|</span>
           <span className="flex items-center gap-1 text-emerald-600">
-            <CheckCircle2 className="size-3.5" />
+            <CheckCircle2 className="size-3" />
             <b>{report.cleared_count}</b> sudah surut
           </span>
         </div>
@@ -149,14 +148,14 @@ export function ReportPopup({ report, onConfirm, hasVoted }: ReportPopupProps) {
             Anda sudah memberikan suara.
           </p>
         ) : (
-          <Button size="sm" variant="outline" className="w-full" onClick={() => setIsConfirmOpen(true)}>
-            <Camera className="size-3.5" />
+          <Button size="sm" variant="outline" className="h-8 w-full text-xs" onClick={() => setIsConfirmOpen(true)}>
+            <Camera className="size-3" />
             Konfirmasi laporan
           </Button>
         )}
 
-        <Button size="sm" variant="ghost" className="w-full" onClick={openTimeline}>
-          <History />
+        <Button size="sm" variant="ghost" className="h-8 w-full text-xs" onClick={openTimeline}>
+          <History className="size-3" />
           Lihat timeline
         </Button>
       </div>

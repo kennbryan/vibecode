@@ -104,6 +104,21 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
   }, [isOpen, loadMessages]);
 
   useEffect(() => {
+    if (!isOpen) return;
+
+    const previousOverflow = document.body.style.overflow;
+    const previousOverscrollBehavior = document.body.style.overscrollBehavior;
+
+    document.body.style.overflow = "hidden";
+    document.body.style.overscrollBehavior = "contain";
+
+    return () => {
+      document.body.style.overflow = previousOverflow;
+      document.body.style.overscrollBehavior = previousOverscrollBehavior;
+    };
+  }, [isOpen]);
+
+  useEffect(() => {
     onUnreadChange(unreadState);
   }, [onUnreadChange, unreadState]);
 
@@ -243,12 +258,12 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
     <>
       <aside
         className={cn(
-          "fixed inset-x-0 bottom-0 z-[1400] flex h-[75dvh] flex-col rounded-t-lg border-t bg-background shadow-2xl transition-transform duration-200 lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:w-[420px] lg:rounded-lg lg:border",
+          "fixed inset-x-0 bottom-0 z-[1400] flex h-[75dvh] max-h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden rounded-t-lg border-t bg-background shadow-2xl transition-transform duration-200 lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:max-h-none lg:w-[420px] lg:rounded-lg lg:border",
           isOpen ? "translate-y-0 pointer-events-auto lg:translate-x-0" : "translate-y-full pointer-events-none lg:translate-x-[calc(100%+2rem)] lg:translate-y-0",
         )}
         aria-hidden={!isOpen}
       >
-        <header className="flex items-center justify-between gap-3 border-b px-4 py-3">
+        <header className="flex shrink-0 items-center justify-between gap-3 border-b px-4 py-3">
           <div className="min-w-0">
             <h2 className="flex items-center gap-2 text-sm font-semibold">
               <MessageCircle className="size-4" />
@@ -265,12 +280,12 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
           </Button>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col">
-          <div className="border-b bg-muted/30 p-3">
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <div className="shrink-0 border-b bg-muted/30 p-3">
             <ChatRulesCard expandSignal={rulesExpandSignal} />
           </div>
 
-          <div className="min-h-0 flex-1 space-y-3 overflow-y-auto p-3">
+          <div className="min-h-0 flex-1 touch-pan-y space-y-3 overflow-y-auto overscroll-contain p-3 [-webkit-overflow-scrolling:touch]">
             {error && (
               <div className="flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 <span>{error}</span>

@@ -22,6 +22,7 @@ export default function EmbedMapClient({ reports, height, zoom }: EmbedMapClient
         maxZoom={19}
         zoomControl
         attributionControl
+        zoomAnimation={false}
         className="h-full w-full"
         preferCanvas
       >
