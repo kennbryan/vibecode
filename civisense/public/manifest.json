@@ -1,0 +1,24 @@
+{
+  "name": "CiviSense",
+  "short_name": "CiviSense",
+  "description": "Laporan banjir komunitas untuk Bojongsoang dan Telkom University.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f3f7f8",
+  "theme_color": "#0c5b66",
+  "icons": [
+    {
+      "src": "/icons/icon-192.svg",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icons/icon-512.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

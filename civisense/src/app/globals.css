@@ -1,0 +1,145 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 204 33% 97%;
+    --foreground: 202 39% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 202 39% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 202 39% 12%;
+    --primary: 190 78% 22%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 174 32% 88%;
+    --secondary-foreground: 190 78% 18%;
+    --muted: 198 24% 91%;
+    --muted-foreground: 202 18% 39%;
+    --accent: 48 96% 89%;
+    --accent-foreground: 33 82% 22%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 199 24% 84%;
+    --input: 199 24% 84%;
+    --ring: 190 78% 32%;
+    --radius: 0.5rem;
+  }
+
+  .dark {
+    --background: 202 39% 8%;
+    --foreground: 204 33% 95%;
+    --card: 202 39% 10%;
+    --card-foreground: 204 33% 95%;
+    --popover: 202 39% 10%;
+    --popover-foreground: 204 33% 95%;
+    --primary: 190 60% 45%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 190 30% 18%;
+    --secondary-foreground: 174 32% 80%;
+    --muted: 202 30% 14%;
+    --muted-foreground: 202 18% 58%;
+    --accent: 48 80% 20%;
+    --accent-foreground: 48 96% 80%;
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 202 30% 18%;
+    --input: 202 30% 18%;
+    --ring: 190 60% 45%;
+  }
+
+  * {
+    @apply border-border;
+  }
+
+  html,
+  body {
+    @apply min-h-full bg-background text-foreground antialiased;
+  }
+
+  body {
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+}
+
+.leaflet-container {
+  background: hsl(var(--muted));
+  font: inherit;
+}
+
+.leaflet-popup-content-wrapper,
+.leaflet-popup-tip {
+  border-radius: 0.5rem;
+}
+
+.leaflet-popup-content {
+  margin: 0.75rem;
+}
+
+.civisense-location-marker {
+  position: relative;
+}
+
+.civisense-location-marker__pulse,
+.civisense-location-marker__dot {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+}
+
+.civisense-location-marker__pulse {
+  height: 34px;
+  width: 34px;
+  background: rgb(37 99 235 / 28%);
+  animation: civisense-location-pulse 1.6s ease-out infinite;
+}
+
+.civisense-location-marker__dot {
+  height: 14px;
+  width: 14px;
+  border: 2px solid white;
+  background: #2563eb;
+  box-shadow: 0 8px 20px rgb(15 23 42 / 20%);
+}
+
+.civisense-chat-marker {
+  background: transparent;
+  border: 0;
+}
+
+.civisense-chat-marker span {
+  display: inline-flex;
+  height: 38px;
+  width: 38px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid white;
+  border-radius: 9999px 9999px 9999px 0;
+  background: #0f766e;
+  color: white;
+  font-size: 18px;
+  box-shadow: 0 12px 24px rgb(15 23 42 / 25%);
+  transform: rotate(-45deg);
+}
+
+.civisense-chat-marker b {
+  display: inline-block;
+  font-weight: 400;
+  transform: rotate(45deg);
+}
+
+@keyframes civisense-location-pulse {
+  0% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(0.55);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.45);
+  }
+}
