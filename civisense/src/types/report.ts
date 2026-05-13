@@ -33,7 +33,7 @@ export type CreateReportPayload = {
 
 export type ReportFilters = {
   severity: ReportSeverity | "all";
-  timeWindow: "1h" | "3h" | "5h" | "7h";
+  timeWindow: "all" | "1h" | "3h" | "5h" | "7h";
   sort: "newest" | "confirmed";
 };
 

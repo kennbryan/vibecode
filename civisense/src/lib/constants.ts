@@ -1,17 +1,17 @@
 import type { ReportSeverity, WaterDepth } from "@/types/report";
 
 export const BOJONGSOANG_BOUNDS = {
-  south: -7.0,
-  north: -6.96,
-  west: 107.61,
-  east: 107.65,
+  south: -7.015,
+  north: -6.961,
+  west: 107.608,
+  east: 107.711,
 } as const;
 
 export const MAP_MAX_BOUNDS = {
-  south: -7.04,
-  north: -6.92,
-  west: 107.57,
-  east: 107.69,
+  south: -7.055,
+  north: -6.925,
+  west: 107.555,
+  east: 107.785,
 } as const;
 
 export const MAP_CENTER = {

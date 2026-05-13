@@ -213,17 +213,6 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
     setMessages((current) => upsertMessage(current, responsePayload.message!));
   }
 
-  async function verifyMessage(messageId: string) {
-    const response = await fetch(`/api/chat/messages/${messageId}/verify`, { method: "POST" });
-    const payload = (await response.json()) as { message?: ChatMessageType; error?: string };
-
-    if (!response.ok || !payload.message) {
-      throw new Error(payload.error || "Verifikasi gagal dikirim.");
-    }
-
-    setMessages((current) => upsertMessage(current, payload.message!));
-  }
-
   async function flagMessage(messageId: string) {
     const response = await fetch(`/api/chat/messages/${messageId}/flag`, { method: "POST" });
     const payload = (await response.json()) as { hidden?: boolean; message?: ChatMessageType; error?: string };
@@ -309,7 +298,6 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
                 key={message.id}
                 message={message}
                 onFlag={flagMessage}
-                onVerify={verifyMessage}
                 onViewLocation={onViewLocation}
               />
             ))}

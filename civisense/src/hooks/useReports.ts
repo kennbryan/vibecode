@@ -104,6 +104,10 @@ export function useReports({ initialReports = [], filters }: UseReportsOptions) 
 
   const hasVoted = useCallback((id: string) => votedIds.has(id), [votedIds]);
 
+  const addReport = useCallback((report: FloodReport) => {
+    setReports((current) => [report, ...current]);
+  }, []);
+
   useEffect(() => {
     void refresh();
     const interval = window.setInterval(() => {
@@ -131,7 +135,7 @@ export function useReports({ initialReports = [], filters }: UseReportsOptions) 
     };
   }, [refresh]);
 
-  return { reports, isLoading, error, refresh, confirmReport, hasVoted };
+  return { reports, isLoading, error, refresh, addReport, confirmReport, hasVoted };
 }
 
 async function buildConfirmationFormData(action: ConfirmReportAction, options?: ConfirmReportOptions) {

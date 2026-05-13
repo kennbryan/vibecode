@@ -35,10 +35,11 @@ export function ReportList({ reports, filters, onFiltersChange, onConfirm, hasVo
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="1h">1 jam</SelectItem>
-            <SelectItem value="3h">3 jam</SelectItem>
-            <SelectItem value="5h">5 jam</SelectItem>
-            <SelectItem value="7h">7 jam</SelectItem>
+            <SelectItem value="all">Semua waktu</SelectItem>
+            <SelectItem value="1h">&gt; 1 jam lalu</SelectItem>
+            <SelectItem value="3h">&gt; 3 jam lalu</SelectItem>
+            <SelectItem value="5h">&gt; 5 jam lalu</SelectItem>
+            <SelectItem value="7h">&gt; 7 jam lalu</SelectItem>
           </SelectContent>
         </Select>
         <Select value={filters.sort} onValueChange={(sort) => onFiltersChange({ ...filters, sort: sort as ReportFilters["sort"] })}>

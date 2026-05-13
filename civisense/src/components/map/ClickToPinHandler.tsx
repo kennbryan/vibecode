@@ -19,7 +19,7 @@ export function ClickToPinHandler({ onPick, enabled = true }: ClickToPinHandlerP
       const next = { lat: event.latlng.lat, lng: event.latlng.lng };
 
       if (!isWithinBojongsoangBounds(next.lat, next.lng)) {
-        toast.error("Titik di luar Bojongsoang tidak dapat dilaporkan.");
+        toast.error("Titik di luar Bojongsoang tidak dapat dilaporkan.", { id: "out-of-bounds" });
         return;
       }
 

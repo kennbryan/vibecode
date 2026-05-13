@@ -38,14 +38,18 @@ export async function GET(request: NextRequest) {
     const severity = searchParams.get("severity");
     const timeWindow = searchParams.get("time") || "5h";
     const sort = searchParams.get("sort") || "newest";
-    const since = new Date(Date.now() - (TIME_WINDOWS[timeWindow as keyof typeof TIME_WINDOWS] ?? TIME_WINDOWS["5h"])).toISOString();
+    const timeMs = TIME_WINDOWS[timeWindow as keyof typeof TIME_WINDOWS];
+    const since = timeMs ? new Date(Date.now() - timeMs).toISOString() : null;
 
     let query = supabase
       .from("flood_reports")
       .select(selectColumns())
       .eq("status", "active")
-      .gt("expires_at", new Date().toISOString())
-      .or(`created_at.gte.${since},last_confirmed_at.gte.${since}`);
+      .gt("expires_at", new Date().toISOString());
+
+    if (since) {
+      query = query.or(`created_at.lte.${since},last_confirmed_at.lte.${since}`);
+    }
 
     if (severity && severity !== "all" && severities.includes(severity as ReportSeverity)) {
       query = query.eq("severity", severity);

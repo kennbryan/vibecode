@@ -3,7 +3,7 @@
 import L from "leaflet";
 import { Plus, RefreshCw } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
-import { MapContainer, Marker, TileLayer, useMap } from "react-leaflet";
+import { MapContainer, Marker, Polygon, TileLayer, useMap } from "react-leaflet";
 import { toast } from "sonner";
 import { ChatBubble } from "@/components/chat/ChatBubble";
 import { ChatPanel } from "@/components/chat/ChatPanel";
@@ -17,6 +17,7 @@ import { ViewToggle } from "@/components/layout/ViewToggle";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { MAP_CENTER, SEVERITY_CONFIG } from "@/lib/constants";
+import { BOJONGSOANG_POLYGON } from "@/lib/bojongsoang-polygon";
 import { useReports } from "@/hooks/useReports";
 import type { ChatUnreadState } from "@/types/chat";
 import type { FloodReport, ReportFilters } from "@/types/report";
@@ -51,14 +52,14 @@ function ChatLocationFocus({ target }: { target: ChatFocusTarget | null }) {
 
 export default function FloodMapClient({ initialReports }: FloodMapClientProps) {
   const [view, setView] = useState<ViewMode>("map");
-  const [filters, setFilters] = useState<ReportFilters>({ severity: "all", timeWindow: "5h", sort: "newest" });
+  const [filters, setFilters] = useState<ReportFilters>({ severity: "all", timeWindow: "all", sort: "newest" });
   const [selectedPosition, setSelectedPosition] = useState<{ lat: number; lng: number } | null>(null);
   const [selectedPositionSource, setSelectedPositionSource] = useState<SelectedPositionSource>("picked");
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
   const [isChatOpen, setIsChatOpen] = useState(false);
   const [chatFocusTarget, setChatFocusTarget] = useState<ChatFocusTarget | null>(null);
   const [chatUnread, setChatUnread] = useState<ChatUnreadState>({ count: 0, hasSevereSystemMessage: false });
-  const { reports, isLoading, error, refresh, confirmReport, hasVoted } = useReports({ initialReports, filters });
+  const { reports, isLoading, error, refresh, addReport, confirmReport, hasVoted } = useReports({ initialReports, filters });
   const selectedPinIcon = useMemo(() => pinIcon(), []);
 
   function handleMapClick(position: { lat: number; lng: number }) {
@@ -80,6 +81,7 @@ export default function FloodMapClient({ initialReports }: FloodMapClientProps) 
   function handleCreated(report: FloodReport) {
     setIsReportDialogOpen(false);
     setSelectedPosition(null);
+    addReport(report);
     void refresh();
     toast.success(`Laporan untuk ${report.latitude.toFixed(5)}, ${report.longitude.toFixed(5)} aktif.`);
   }
@@ -132,6 +134,12 @@ export default function FloodMapClient({ initialReports }: FloodMapClientProps) 
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MapBounds />
+          <Polygon
+            interactive={false}
+            positions={BOJONGSOANG_POLYGON}
+            pathOptions={{ color: "#ca8a04", fillColor: "#EAB308", fillOpacity: 0.18, weight: 3, opacity: 0.9 }}
+            smoothFactor={1.4}
+          />
           <ClickToPinHandler onPick={handleMapClick} enabled />
           {reports.map((report) => (
             <FloodMarker key={report.id} report={report} onConfirm={confirmReport} hasVoted={hasVoted(report.id)} />

@@ -2,7 +2,7 @@
 
 import { formatDistanceToNow } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
-import { Check, Flag, MapPin, MoreVertical, ShieldCheck } from "lucide-react";
+import { Flag, MapPin, MoreVertical } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -12,53 +12,18 @@ import type { ChatMessage as ChatMessageType } from "@/types/chat";
 type ChatMessageProps = {
   message: ChatMessageType;
   onFlag: (id: string) => Promise<void>;
-  onVerify: (id: string) => Promise<void>;
   onViewLocation: (position: { lat: number; lng: number }) => void;
 };
 
-function verificationBadge(message: ChatMessageType) {
-  if (message.is_system) {
-    return <span className="rounded bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">CiviSense</span>;
-  }
-
-  if (message.verification_count >= 3) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">
-        <ShieldCheck className="size-3.5" />
-        ✓✓ Terverifikasi komunitas
-      </span>
-    );
-  }
-
-  if (message.verification_count > 0) {
-    return (
-      <span className="inline-flex items-center gap-1 rounded bg-emerald-50 px-2 py-1 text-xs font-medium text-emerald-700">
-        <Check className="size-3.5" />
-        Diverifikasi {message.verification_count} orang
-      </span>
-    );
-  }
-
-  return null;
+function systemBadge(message: ChatMessageType) {
+  if (!message.is_system) return null;
+  return <span className="rounded bg-orange-100 px-2 py-1 text-xs font-medium text-orange-700">CiviSense</span>;
 }
 
-export function ChatMessage({ message, onFlag, onVerify, onViewLocation }: ChatMessageProps) {
+export function ChatMessage({ message, onFlag, onViewLocation }: ChatMessageProps) {
   const [isFlagMenuOpen, setIsFlagMenuOpen] = useState(false);
-  const [isVerifying, setIsVerifying] = useState(false);
   const [isFlagging, setIsFlagging] = useState(false);
   const hasLocation = message.attached_lat !== null && message.attached_lng !== null;
-
-  async function verify() {
-    setIsVerifying(true);
-    try {
-      await onVerify(message.id);
-      toast.success("Verifikasi tercatat.");
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Verifikasi gagal.");
-    } finally {
-      setIsVerifying(false);
-    }
-  }
 
   async function flag() {
     setIsFlagging(true);
@@ -78,14 +43,12 @@ export function ChatMessage({ message, onFlag, onVerify, onViewLocation }: ChatM
       className={cn(
         "rounded-lg border bg-card p-3 shadow-sm transition-colors",
         message.is_system && "border-orange-200 bg-orange-50",
-        !message.is_system && message.verification_count >= 3 && "border-emerald-200 bg-emerald-50/80",
-        !message.is_system && message.verification_count >= 5 && "border-emerald-300 bg-emerald-100/75 shadow-md",
       )}
     >
       <div className="mb-2 flex items-start justify-between gap-2">
         <div className="min-w-0 space-y-1">
           <div className="flex flex-wrap items-center gap-2">
-            {verificationBadge(message)}
+            {systemBadge(message)}
             <time className="text-xs text-muted-foreground" dateTime={message.created_at}>
               {formatDistanceToNow(new Date(message.created_at), { addSuffix: true, locale: idLocale })}
             </time>
@@ -126,22 +89,6 @@ export function ChatMessage({ message, onFlag, onVerify, onViewLocation }: ChatM
       </p>
 
       <div className="mt-3 flex flex-wrap items-center gap-2">
-        {!message.is_system && !message.viewer_is_author && (
-          <Button
-            type="button"
-            size="sm"
-            variant={message.viewer_verified ? "secondary" : "outline"}
-            className="h-8 text-xs"
-            onClick={() => void verify()}
-            disabled={message.viewer_verified || isVerifying}
-          >
-            <Check className="size-3.5" />
-            {message.viewer_verified
-              ? `Diverifikasi (${message.verification_count})`
-              : `Verifikasi (${message.verification_count})`}
-          </Button>
-        )}
-
         {hasLocation && (
           <Button
             type="button"
