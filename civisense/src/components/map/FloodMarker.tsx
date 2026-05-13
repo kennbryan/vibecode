@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import L from "leaflet";
 import { Marker, Popup } from "react-leaflet";
@@ -38,3 +38,4 @@ export function FloodMarker({ report, onConfirm, hasVoted }: FloodMarkerProps) {
     </Marker>
   );
 }
+
