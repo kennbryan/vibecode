@@ -260,7 +260,7 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
     <>
       <aside
         className={cn(
-          "fixed inset-x-0 bottom-0 z-[1400] flex h-[75dvh] max-h-[calc(100dvh-env(safe-area-inset-bottom))] flex-col overflow-hidden rounded-t-lg border-t bg-background shadow-2xl transition-transform duration-200 lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:max-h-none lg:w-[420px] lg:rounded-lg lg:border",
+          "fixed inset-0 z-[1400] grid grid-rows-[auto,minmax(0,1fr),auto] overflow-hidden bg-background shadow-2xl transition-transform duration-200 lg:inset-x-auto lg:bottom-4 lg:right-4 lg:top-[5.25rem] lg:h-auto lg:w-[420px] lg:rounded-lg lg:border",
           isOpen ? "pointer-events-auto" : "translate-y-full pointer-events-none lg:translate-x-[calc(100%+2rem)] lg:translate-y-0",
         )}
         aria-hidden={!isOpen}
@@ -282,15 +282,15 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
           </Button>
         </header>
 
-        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
-          <div className="shrink-0 border-b bg-muted/30 p-3">
+        <div
+          className="min-h-0 overflow-y-auto overscroll-contain"
+          style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
+        >
+          <div className="border-b bg-muted/30 p-3">
             <ChatRulesCard expandSignal={rulesExpandSignal} />
           </div>
 
-          <div
-            className="min-h-0 flex-1 space-y-3 overflow-y-scroll overscroll-contain p-3"
-            style={{ WebkitOverflowScrolling: "touch", touchAction: "pan-y" }}
-          >
+          <div className="space-y-3 p-3">
             {error && (
               <div className="flex items-center justify-between gap-3 rounded-md border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive">
                 <span>{error}</span>
@@ -323,13 +323,13 @@ export function ChatPanel({ isOpen, onClose, onUnreadChange, onViewLocation }: C
             ))}
             <div ref={bottomRef} />
           </div>
-
-          <ChatComposer
-            cooldownUntil={cooldownUntil}
-            onOpenRules={() => setRulesExpandSignal((current) => current + 1)}
-            onSend={sendMessage}
-          />
         </div>
+
+        <ChatComposer
+          cooldownUntil={cooldownUntil}
+          onOpenRules={() => setRulesExpandSignal((current) => current + 1)}
+          onSend={sendMessage}
+        />
       </aside>
 
       <Dialog open={showOnboarding} onOpenChange={(open) => !open && dismissOnboarding()}>
