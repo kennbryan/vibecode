@@ -6,17 +6,22 @@ import { createReportSystemMessage } from "@/lib/chat-server";
 import { isWithinBojongsoangBounds, parseCoordinate } from "@/lib/geo";
 import { limitReportCreate, rateLimitResponse } from "@/lib/rate-limit";
 import { jsonError } from "@/lib/utils";
-import type { FloodReport, ReportSeverity, WaterDepth } from "@/types/report";
+import type { FloodReport, ReportSeverity, ReportType, WaterDepth } from "@/types/report";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const severities: ReportSeverity[] = ["light", "moderate", "severe"];
+const reportTypes: ReportType[] = ["flood", "river"];
 const waterDepths: WaterDepth[] = ["ankle", "calf", "knee", "thigh", "waist", "above_waist"];
 const MAX_PHOTO_SIZE_BYTES = 524_288;
 
 function isSeverity(value: FormDataEntryValue | null): value is ReportSeverity {
   return typeof value === "string" && severities.includes(value as ReportSeverity);
+}
+
+function isReportType(value: FormDataEntryValue | null): value is ReportType {
+  return typeof value === "string" && reportTypes.includes(value as ReportType);
 }
 
 function isWaterDepth(value: FormDataEntryValue | null): value is WaterDepth {
@@ -28,7 +33,7 @@ function cleanText(value: FormDataEntryValue | null, fallback = "") {
 }
 
 function selectColumns() {
-  return "id,latitude,longitude,severity,water_depth,status,comment,reporter_name,photo_url,confirmation_count,cleared_count,created_at,updated_at,last_confirmed_at,expires_at";
+  return "id,latitude,longitude,severity,report_type,water_depth,status,comment,reporter_name,photo_url,confirmation_count,cleared_count,created_at,updated_at,last_confirmed_at,expires_at";
 }
 
 export async function GET(request: NextRequest) {
@@ -95,6 +100,7 @@ export async function POST(request: NextRequest) {
     const comment = cleanText(formData.get("comment"));
     const reporterName = cleanText(formData.get("reporter_name"), "Anonymous").slice(0, 80);
     const severity = formData.get("severity");
+    const reportType = formData.get("report_type");
     const waterDepth = formData.get("water_depth");
     const photo = formData.get("photo");
 
@@ -105,6 +111,8 @@ export async function POST(request: NextRequest) {
     if (!isSeverity(severity)) {
       return jsonError("Pilih tingkat banjir yang valid.", 422);
     }
+
+    const validatedReportType: ReportType = isReportType(reportType) ? reportType : "flood";
 
     if (waterDepth !== null && !isWaterDepth(waterDepth)) {
       return jsonError("Pilih perkiraan kedalaman yang valid.", 422);
@@ -159,6 +167,7 @@ export async function POST(request: NextRequest) {
         latitude,
         longitude,
         severity,
+        report_type: validatedReportType,
         water_depth: validatedWaterDepth,
         comment,
         reporter_name: reporterName,

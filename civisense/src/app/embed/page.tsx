@@ -16,7 +16,7 @@ const EmbedMapClient = dynamic(() => import("@/components/map/EmbedMapClient"), 
 });
 
 const columns =
-  "id,latitude,longitude,severity,water_depth,status,comment,reporter_name,photo_url,confirmation_count,cleared_count,created_at,updated_at,last_confirmed_at,expires_at";
+  "id,latitude,longitude,severity,report_type,water_depth,status,comment,reporter_name,photo_url,confirmation_count,cleared_count,created_at,updated_at,last_confirmed_at,expires_at";
 const severities: ReportSeverity[] = ["light", "moderate", "severe"];
 
 export const dynamicParams = true;

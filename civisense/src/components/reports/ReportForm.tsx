@@ -7,12 +7,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { SEVERITY_CONFIG, WATER_DEPTH_CONFIG } from "@/lib/constants";
+import { REPORT_TYPE_CONFIG, SEVERITY_CONFIG, WATER_DEPTH_CONFIG } from "@/lib/constants";
 import { isWithinBojongsoangBounds } from "@/lib/geo";
 import { compressReportPhoto } from "@/lib/image";
 import { queuePendingReport } from "@/lib/offline-reports";
 import { cn } from "@/lib/utils";
-import type { FloodReport, ReportSeverity, WaterDepth } from "@/types/report";
+import type { FloodReport, ReportSeverity, ReportType, WaterDepth } from "@/types/report";
 
 type ReportFormProps = {
   position: { lat: number; lng: number } | null;
@@ -20,6 +20,7 @@ type ReportFormProps = {
 };
 
 export function ReportForm({ position, onCreated }: ReportFormProps) {
+  const [reportType, setReportType] = useState<ReportType>("flood");
   const [severity, setSeverity] = useState<ReportSeverity>("moderate");
   const [waterDepth, setWaterDepth] = useState<WaterDepth | null>(null);
   const [comment, setComment] = useState("");
@@ -74,6 +75,7 @@ export function ReportForm({ position, onCreated }: ReportFormProps) {
           createdAt: new Date().toISOString(),
           latitude: position.lat,
           longitude: position.lng,
+          report_type: reportType,
           severity,
           water_depth: waterDepth,
           comment,
@@ -89,6 +91,7 @@ export function ReportForm({ position, onCreated }: ReportFormProps) {
       const formData = new FormData();
       formData.set("latitude", String(position.lat));
       formData.set("longitude", String(position.lng));
+      formData.set("report_type", reportType);
       formData.set("severity", severity);
       if (waterDepth) formData.set("water_depth", waterDepth);
       formData.set("comment", comment);
@@ -113,6 +116,8 @@ export function ReportForm({ position, onCreated }: ReportFormProps) {
   }
 
   function resetForm() {
+    setReportType("flood");
+    setSeverity("moderate");
     setWaterDepth(null);
     setComment("");
     setName("");
@@ -130,9 +135,34 @@ export function ReportForm({ position, onCreated }: ReportFormProps) {
         <p className="mt-1 text-sm text-muted-foreground">{positionText}</p>
       </div>
 
+      <div className="space-y-2">
+        <Label>Jenis laporan</Label>
+        <div className="grid grid-cols-2 gap-2">
+          {(Object.keys(REPORT_TYPE_CONFIG) as ReportType[]).map((type) => {
+            const config = REPORT_TYPE_CONFIG[type];
+            const isActive = reportType === type;
+            return (
+              <button
+                key={type}
+                type="button"
+                onClick={() => setReportType(type)}
+                className={cn(
+                  "flex flex-col items-center gap-1 rounded-md border px-3 py-2.5 text-sm font-medium transition",
+                  isActive ? "border-foreground bg-foreground text-background" : "bg-background hover:bg-muted",
+                )}
+              >
+                <span className="mx-auto mb-0.5 block size-3 rounded-full" style={{ backgroundColor: isActive ? "white" : config.color }} />
+                <span>{config.label}</span>
+                <span className={cn("text-[11px] font-normal leading-tight text-center", isActive ? "text-background/70" : "text-muted-foreground")}>{config.description}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Photo picker with preview */}
       <div className="space-y-2">
-        <Label>Foto banjir</Label>
+        <Label>{reportType === "river" ? "Foto sungai" : "Foto banjir"}</Label>
         {photoPreview ? (
           <div className="relative overflow-hidden rounded-md">
             {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -168,25 +198,27 @@ export function ReportForm({ position, onCreated }: ReportFormProps) {
         />
       </div>
 
-      <div className="space-y-2">
-        <Label>Tingkat banjir</Label>
-        <div className="grid grid-cols-3 gap-2">
-          {(Object.keys(SEVERITY_CONFIG) as ReportSeverity[]).map((level) => (
-            <button
-              key={level}
-              type="button"
-              onClick={() => setSeverity(level)}
-              className={cn(
-                "rounded-md border px-2 py-2 text-sm font-medium transition",
-                severity === level ? "border-foreground bg-foreground text-background" : "bg-background hover:bg-muted",
-              )}
-            >
-              <span className="mx-auto mb-1 block size-3 rounded-full" style={{ backgroundColor: SEVERITY_CONFIG[level].color }} />
-              {SEVERITY_CONFIG[level].label}
-            </button>
-          ))}
+      {reportType === "flood" && (
+        <div className="space-y-2">
+          <Label>Tingkat banjir</Label>
+          <div className="grid grid-cols-3 gap-2">
+            {(Object.keys(SEVERITY_CONFIG) as ReportSeverity[]).map((level) => (
+              <button
+                key={level}
+                type="button"
+                onClick={() => setSeverity(level)}
+                className={cn(
+                  "rounded-md border px-2 py-2 text-sm font-medium transition",
+                  severity === level ? "border-foreground bg-foreground text-background" : "bg-background hover:bg-muted",
+                )}
+              >
+                <span className="mx-auto mb-1 block size-3 rounded-full" style={{ backgroundColor: SEVERITY_CONFIG[level].color }} />
+                {SEVERITY_CONFIG[level].label}
+              </button>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       <div className="space-y-2">
         <Label>Perkiraan kedalaman (opsional)</Label>

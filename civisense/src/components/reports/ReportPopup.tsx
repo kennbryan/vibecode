@@ -5,7 +5,7 @@ import { id } from "date-fns/locale";
 import { Camera, CheckCircle2, Droplets, History, Loader2, X, ZoomIn } from "lucide-react";
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { SeverityBadge } from "@/components/reports/SeverityBadge";
+import { ReportTypeBadge } from "@/components/reports/SeverityBadge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { WATER_DEPTH_CONFIG } from "@/lib/constants";
@@ -116,7 +116,7 @@ export function ReportPopup({ report, onConfirm, hasVoted }: ReportPopupProps) {
         {/* Info */}
         <div className="space-y-1">
           <div className="flex items-center justify-between gap-1.5">
-            <SeverityBadge severity={report.severity} />
+            <ReportTypeBadge report={report} />
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: id })}
             </span>

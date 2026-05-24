@@ -8,7 +8,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { SeverityBadge } from "@/components/reports/SeverityBadge";
+import { ReportTypeBadge } from "@/components/reports/SeverityBadge";
 import { WATER_DEPTH_CONFIG } from "@/lib/constants";
 import type { ConfirmReportAction, ConfirmReportOptions, FloodReport, ReportTimeline } from "@/types/report";
 
@@ -67,7 +67,7 @@ export function ReportCard({ report }: ReportCardProps) {
 
         <CardContent className="space-y-3 p-4">
           <div className="flex items-center justify-between gap-2">
-            <SeverityBadge severity={report.severity} />
+            <ReportTypeBadge report={report} />
             <span className="text-xs text-muted-foreground">
               {formatDistanceToNow(new Date(report.created_at), { addSuffix: true, locale: id })}
             </span>

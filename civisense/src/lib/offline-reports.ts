@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReportSeverity, WaterDepth } from "@/types/report";
+import type { ReportSeverity, ReportType, WaterDepth } from "@/types/report";
 
 const DB_NAME = "civisense-offline";
 const DB_VERSION = 1;
@@ -12,6 +12,7 @@ export type PendingReport = {
   createdAt: string;
   latitude: number;
   longitude: number;
+  report_type: ReportType;
   severity: ReportSeverity;
   water_depth: WaterDepth | null;
   comment: string;
@@ -83,6 +84,7 @@ export async function replayPendingReports() {
     const formData = new FormData();
     formData.set("latitude", String(report.latitude));
     formData.set("longitude", String(report.longitude));
+    formData.set("report_type", report.report_type);
     formData.set("severity", report.severity);
     if (report.water_depth) {
       formData.set("water_depth", report.water_depth);

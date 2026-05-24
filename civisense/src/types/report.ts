@@ -1,5 +1,7 @@
 export type ReportSeverity = "light" | "moderate" | "severe";
 
+export type ReportType = "flood" | "river";
+
 export type WaterDepth = "ankle" | "calf" | "knee" | "thigh" | "waist" | "above_waist";
 
 export type ReportStatus = "active" | "cleared" | "expired";
@@ -9,6 +11,7 @@ export type FloodReport = {
   latitude: number;
   longitude: number;
   severity: ReportSeverity;
+  report_type: ReportType;
   water_depth: WaterDepth | null;
   status: ReportStatus;
   comment: string;
@@ -26,6 +29,7 @@ export type CreateReportPayload = {
   latitude: number;
   longitude: number;
   severity: ReportSeverity;
+  report_type?: ReportType;
   water_depth?: WaterDepth;
   comment: string;
   reporter_name?: string;

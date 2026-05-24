@@ -1,4 +1,4 @@
-import type { ReportSeverity, WaterDepth } from "@/types/report";
+import type { ReportSeverity, ReportType, WaterDepth } from "@/types/report";
 
 export const BOJONGSOANG_BOUNDS = {
   south: -7.015,
@@ -46,6 +46,21 @@ export const SEVERITY_CONFIG: Record<
     color: "#DC2626",
     marker: "/icons/marker-severe.svg",
     rank: 3,
+  },
+};
+
+export const REPORT_TYPE_CONFIG: Record<ReportType, { label: string; description: string; color: string; marker: string }> = {
+  flood: {
+    label: "Banjir",
+    description: "Air menggenangi jalan atau permukiman",
+    color: "#F97316",
+    marker: "/icons/marker-moderate.svg",
+  },
+  river: {
+    label: "Sungai",
+    description: "Sungai meluap atau level air naik",
+    color: "#0EA5E9",
+    marker: "/icons/marker-river.svg",
   },
 };
 
