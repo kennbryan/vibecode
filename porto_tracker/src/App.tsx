@@ -2,7 +2,6 @@ import { useEffect, useRef } from 'react'
 import { Header } from './components/Header'
 import { Hero } from './components/Hero'
 import { Overview } from './components/Overview'
-import { TopHoldingsPreview } from './components/TopHoldingsPreview'
 import { CompactTotal } from './components/CompactTotal'
 import { CryptoSection } from './components/crypto/CryptoSection'
 import { AddWalletModal } from './components/crypto/AddWalletModal'
@@ -24,7 +23,6 @@ function DashboardPage() {
     <>
       <Hero />
       <Overview />
-      <TopHoldingsPreview />
     </>
   )
 }
