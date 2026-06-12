@@ -23,12 +23,12 @@ function StockRow({ stock }: { stock: Stock }) {
   }
 
   return (
-    <tr className="group border-b border-edge transition-colors duration-150 last:border-b-0 hover:bg-overlay/50">
+    <tr className="group border-b border-white/5 transition-colors duration-150 last:border-b-0 hover:bg-white/[0.03]">
       <td className="px-5 py-3">
         <span className="font-mono text-sm text-primary">{stock.ticker}</span>
         {stock.manualPrice && (
           <span
-            className="ml-2 rounded border border-edge px-1 py-px text-[10px] uppercase tracking-wide text-muted"
+            className="ml-2 rounded border border-white/10 px-1 py-px text-[10px] uppercase tracking-wide text-muted"
             title="Manual price"
           >
             manual
@@ -92,11 +92,11 @@ export function StocksSection() {
           onCta={() => openModal(null)}
         />
       ) : (
-        <div className="rounded-card overflow-hidden border border-edge bg-elevated">
+        <div className="rounded-card glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[560px]">
               <thead>
-                <tr className="border-b border-edge">
+                <tr className="border-b border-white/10">
                   <th className="label-caps-xs px-5 py-3 text-left font-medium">Ticker</th>
                   <th className="label-caps-xs px-4 py-3 text-left font-medium">Exchange</th>
                   <th className="label-caps-xs px-4 py-3 text-right font-medium">Shares</th>
@@ -115,7 +115,7 @@ export function StocksSection() {
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-end gap-4 border-t border-edge px-5 py-3">
+          <div className="flex items-center justify-end gap-4 border-t border-white/10 px-5 py-3">
             <span className="label-caps-xs">Stocks total</span>
             <span className="font-mono text-sm font-medium text-primary">{formatUsd(stocksUsd)}</span>
           </div>

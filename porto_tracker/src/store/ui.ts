@@ -1,7 +1,12 @@
 import { create } from 'zustand'
 import type { CashAccount, Stock } from '../lib/db'
 
+export type Page = 'dashboard' | 'holdings' | 'analytics' | 'history'
+
 interface UiState {
+  page: Page
+  setPage: (p: Page) => void
+
   settingsOpen: boolean
   addWalletOpen: boolean
   /** null = closed, undefined-id record = add, otherwise edit */
@@ -26,6 +31,9 @@ interface UiState {
 }
 
 export const useUi = create<UiState>((set) => ({
+  page: 'dashboard',
+  setPage: (p) => set({ page: p }),
+
   settingsOpen: false,
   addWalletOpen: false,
   stockModal: { open: false, editing: null },

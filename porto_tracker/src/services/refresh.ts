@@ -1,12 +1,39 @@
-import { db, patchSettings, uid, type Wallet } from '../lib/db'
+import { addSnapshot, db, getSettings, patchSettings, uid, type Wallet } from '../lib/db'
 import { EVM_CHAINS } from '../lib/chains'
 import { createLimiter } from '../lib/limiter'
+import { computeTotals } from '../lib/portfolioMath'
 import { fetchEvmChain, type RawHolding } from './evm'
 import { fetchSolana } from './solana'
 import { fetchBitcoin } from './bitcoin'
 import { fetchQuote } from './stocks'
 import { getPrices } from './prices'
 import { useUi } from '../store/ui'
+
+/** capture a net-worth snapshot from the current DB state (post-refresh) */
+async function captureSnapshot(): Promise<void> {
+  const [settings, holdings, stocks, cash] = await Promise.all([
+    getSettings(),
+    db.holdings.toArray(),
+    db.stocks.toArray(),
+    db.cash.toArray(),
+  ])
+  const { cryptoUsd, stocksUsd, cashUsd, totalUsd } = computeTotals(
+    holdings,
+    stocks,
+    cash,
+    settings,
+  )
+  // don't record an empty portfolio (e.g. first load before any data)
+  if (totalUsd <= 0) return
+  await addSnapshot({
+    ts: Date.now(),
+    totalUsd,
+    cryptoUsd,
+    stocksUsd,
+    cashUsd,
+    fxRate: settings.fxRate,
+  })
+}
 
 // Cap how many wallets refresh at once. Each wallet fans out to ~11 chains, so
 // without this 19 wallets would launch 200+ simultaneous requests and the
@@ -147,6 +174,8 @@ export async function refreshAll(): Promise<void> {
       refreshStocks(),
     ])
     await patchSettings({ lastUpdated: Date.now() })
+    // record net worth after all balances/prices have settled
+    await captureSnapshot().catch((e) => console.warn('[vault] snapshot failed:', e))
   } finally {
     useUi.getState().setGlobalRefreshing(false)
   }

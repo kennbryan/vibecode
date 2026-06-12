@@ -30,7 +30,7 @@ function FxInlineEdit({ fxRate }: { fxRate: number | null }) {
             if (e.key === 'Enter') void commit()
             if (e.key === 'Escape') setEditing(false)
           }}
-          className="h-7 w-28 rounded-md border border-edge-strong bg-elevated px-2 font-mono text-[13px] text-primary focus:border-accent/60 focus:outline-none"
+          className="h-7 w-28 rounded-md border border-white/10 bg-white/5 px-2 font-mono text-[13px] text-primary focus:border-accent/60 focus:outline-none"
           placeholder="18300"
           aria-label="USD to IDR rate"
         />
@@ -50,7 +50,7 @@ function FxInlineEdit({ fxRate }: { fxRate: number | null }) {
         setDraft(fxRate ? String(fxRate) : '')
         setEditing(true)
       }}
-      className="group inline-flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-0.5 -mx-1.5 transition-colors hover:bg-overlay focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
+      className="group inline-flex cursor-pointer items-center gap-2 rounded-md px-1.5 py-0.5 -mx-1.5 transition-colors hover:bg-white/5 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-accent"
       aria-label="Edit USD/IDR rate"
     >
       <span className="label-caps-xs">FX&ensp;USD/IDR</span>
@@ -67,16 +67,37 @@ export function Hero() {
   const idr = toIdr(totalUsd)
 
   return (
-    <section className="pt-14 pb-12">
-      <p className="label-caps mb-4">Total Net Worth</p>
-      <p className="font-mono text-[56px] font-medium leading-none tracking-[-0.02em] text-primary max-md:text-[40px]">
-        <CountUp value={totalUsd} format={formatUsd} />
-      </p>
-      <p className="mt-3 font-mono text-xl text-secondary max-md:text-lg">
-        {idr !== null ? <CountUp value={idr} format={formatIdr} /> : <span className="text-muted">Rp —</span>}
-      </p>
-      <div className="mt-5">
-        <FxInlineEdit fxRate={fxRate} />
+    <section className="relative pt-16 pb-12">
+      {/* Large ambient glow behind the number */}
+      <div className="pointer-events-none absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2">
+        <div className="h-72 w-[800px] rounded-full bg-accent/8 blur-[120px] pulse-glow-anim" />
+      </div>
+
+      <div className="relative text-center">
+        {/* Top badge */}
+        <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-accent/20 bg-accent/10 px-3 py-1">
+          <span className="inline-block size-1.5 rounded-full bg-accent pulse-glow-anim" />
+          <span className="text-[10px] font-medium uppercase tracking-[0.15em] text-accent">Live Portfolio</span>
+        </div>
+
+        {/* Main total */}
+        <h1 className="font-mono text-[72px] font-medium leading-none tracking-[-0.03em] gradient-text max-md:text-[48px]">
+          <CountUp value={totalUsd} format={formatUsd} />
+        </h1>
+
+        {/* IDR conversion */}
+        <p className="mt-4 font-mono text-xl text-secondary text-glow-subtle max-md:text-lg">
+          {idr !== null ? (
+            <CountUp value={idr} format={formatIdr} />
+          ) : (
+            <span className="text-muted">Rp —</span>
+          )}
+        </p>
+
+        {/* FX rate editor */}
+        <div className="mt-6">
+          <FxInlineEdit fxRate={fxRate} />
+        </div>
       </div>
     </section>
   )

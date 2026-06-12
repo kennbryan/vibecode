@@ -10,8 +10,8 @@ export function EmptyState({ icon: Icon, title, body, cta, onCta }: {
   onCta: () => void
 }) {
   return (
-    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-edge-strong px-6 py-12 text-center">
-      <div className="flex size-11 items-center justify-center rounded-xl border border-edge bg-elevated">
+    <div className="flex flex-col items-center gap-3 rounded-2xl border border-dashed border-white/10 px-6 py-12 text-center glass-card">
+      <div className="flex size-11 items-center justify-center rounded-xl border border-white/10 bg-white/5">
         <Icon size={18} className="text-secondary" />
       </div>
       <div>

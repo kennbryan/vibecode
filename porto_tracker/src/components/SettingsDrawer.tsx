@@ -90,13 +90,15 @@ function NumberInput({ value, onCommit, placeholder, width = 'w-28' }: {
 
 interface ExportPayload {
   app: 'vault'
-  version: 1
+  /** 1 = pre-history exports (no snapshots); 2 = includes snapshots */
+  version: 1 | 2
   exportedAt: string
   settings: Settings
   wallets: unknown[]
   holdings: unknown[]
   stocks: unknown[]
   cash: unknown[]
+  snapshots?: unknown[]
 }
 
 /* ─────────────────────────── storage status ────────────────────────────── */
@@ -139,7 +141,7 @@ function StoragePanel() {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-start gap-2.5 rounded-lg border border-edge bg-elevated p-3">
+      <div className="flex items-start gap-2.5 rounded-lg border border-white/10 bg-white/[0.03] p-3">
         <Icon size={15} className={`mt-0.5 shrink-0 ${persisted ? 'text-accent' : 'text-warning'}`} />
         <div className="min-w-0">
           <p className="text-[13px] text-primary">
@@ -167,13 +169,14 @@ function StoragePanel() {
 async function exportData() {
   const payload: ExportPayload = {
     app: 'vault',
-    version: 1,
+    version: 2,
     exportedAt: new Date().toISOString(),
     settings: await getSettings(),
     wallets: await db.wallets.toArray(),
     holdings: await db.holdings.toArray(),
     stocks: await db.stocks.toArray(),
     cash: await db.cash.toArray(),
+    snapshots: await db.snapshots.toArray(),
   }
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' })
   const url = URL.createObjectURL(blob)
@@ -194,7 +197,8 @@ function DataTools() {
     setMessage(null)
     try {
       const json = JSON.parse(await file.text()) as ExportPayload
-      if (json.app !== 'vault' || json.version !== 1 || !Array.isArray(json.wallets)) {
+      // accept v1 (no snapshots) and v2 (with snapshots)
+      if (json.app !== 'vault' || (json.version !== 1 && json.version !== 2) || !Array.isArray(json.wallets)) {
         throw new Error('not a vault export')
       }
       setPending(json)
@@ -205,20 +209,26 @@ function DataTools() {
 
   const applyImport = async (mode: 'replace' | 'merge') => {
     if (!pending) return
-    await db.transaction('rw', [db.wallets, db.holdings, db.stocks, db.cash, db.settings], async () => {
-      if (mode === 'replace') {
-        await Promise.all([
-          db.wallets.clear(), db.holdings.clear(), db.stocks.clear(), db.cash.clear(),
-        ])
-        await db.settings.put({ ...pending.settings, key: 'app' })
-      }
-      /* eslint-disable @typescript-eslint/no-explicit-any */
-      await db.wallets.bulkPut(pending.wallets as any)
-      await db.holdings.bulkPut(pending.holdings as any)
-      await db.stocks.bulkPut(pending.stocks as any)
-      await db.cash.bulkPut(pending.cash as any)
-      /* eslint-enable @typescript-eslint/no-explicit-any */
-    })
+    const snapshots = Array.isArray(pending.snapshots) ? pending.snapshots : []
+    await db.transaction(
+      'rw',
+      [db.wallets, db.holdings, db.stocks, db.cash, db.settings, db.snapshots],
+      async () => {
+        if (mode === 'replace') {
+          await Promise.all([
+            db.wallets.clear(), db.holdings.clear(), db.stocks.clear(), db.cash.clear(), db.snapshots.clear(),
+          ])
+          await db.settings.put({ ...pending.settings, key: 'app' })
+        }
+        /* eslint-disable @typescript-eslint/no-explicit-any */
+        await db.wallets.bulkPut(pending.wallets as any)
+        await db.holdings.bulkPut(pending.holdings as any)
+        await db.stocks.bulkPut(pending.stocks as any)
+        await db.cash.bulkPut(pending.cash as any)
+        await db.snapshots.bulkPut(snapshots as any)
+        /* eslint-enable @typescript-eslint/no-explicit-any */
+      },
+    )
     setPending(null)
     setMessage(mode === 'replace' ? 'Data replaced from file.' : 'Data merged from file.')
   }
@@ -256,7 +266,7 @@ function DataTools() {
       </div>
 
       {pending && (
-        <div className="rounded-lg border border-edge-strong bg-elevated p-3">
+        <div className="rounded-lg border border-white/10 bg-white/[0.03] p-3">
           <p className="text-[13px] text-primary">
             Import {pending.wallets.length} wallets, {pending.stocks.length} stocks,{' '}
             {pending.cash.length} cash accounts?
@@ -316,10 +326,10 @@ export function SettingsDrawer() {
       />
       <aside
         inert={!open}
-        className={`fixed inset-y-0 right-0 z-50 w-[400px] max-w-full overflow-y-auto border-l border-edge bg-overlay transition-transform duration-200 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
+        className={`fixed inset-y-0 right-0 z-50 w-[400px] max-w-full overflow-y-auto border-l border-white/10 bg-overlay/90 backdrop-blur-xl transition-transform duration-200 ease-in-out ${open ? 'translate-x-0' : 'translate-x-full'}`}
         aria-label="Settings"
       >
-        <div className="sticky top-0 flex items-center justify-between border-b border-edge bg-overlay px-6 py-4">
+        <div className="sticky top-0 flex items-center justify-between border-b border-edge bg-overlay/60 backdrop-blur-xl px-6 py-4">
           <h2 className="text-[15px] font-medium text-primary">Settings</h2>
           <IconButton onClick={() => setOpen(false)} aria-label="Close settings">
             <X size={16} />

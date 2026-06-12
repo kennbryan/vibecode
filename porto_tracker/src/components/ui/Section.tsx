@@ -14,7 +14,10 @@ export function Section({ title, subtotal, action, children }: {
   const [open, setOpen] = useState(true)
 
   return (
-    <section className="border-t border-edge pt-6">
+    <section className="relative">
+      {/* Gradient divider line */}
+      <div className="section-divider mb-6" />
+
       <div className="mb-5 flex items-center gap-3">
         <button
           onClick={() => setOpen((v) => !v)}

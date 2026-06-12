@@ -32,14 +32,14 @@ export function Modal({ open, onClose, title, blocking = false, children, width 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div
-        className="absolute inset-0 bg-black/60 backdrop-blur-[2px]"
+        className="absolute inset-0 bg-black/70 backdrop-blur-[4px]"
         onClick={blocking ? undefined : onClose}
       />
       <div
         role="dialog"
         aria-modal="true"
         aria-label={title}
-        className={`relative w-full ${width} max-h-[88vh] overflow-y-auto rounded-2xl border border-edge-strong bg-overlay p-6 shadow-none`}
+        className={`relative w-full ${width} max-h-[88vh] overflow-y-auto rounded-2xl border border-white/10 p-6 shadow-[0_24px_64px_rgba(0,0,0,0.5)] glass-card`}
       >
         <div className="mb-5 flex items-center justify-between">
           <h2 className="text-[15px] font-medium text-primary">{title}</h2>
@@ -68,6 +68,6 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 }
 
 export const inputCls =
-  'w-full h-10 rounded-lg border border-edge-strong bg-elevated px-3 text-sm text-primary placeholder:text-muted transition-colors duration-150 focus:border-accent/60 focus:outline-none'
+  'w-full h-10 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-primary placeholder:text-muted transition-colors duration-150 focus:border-accent/60 focus:outline-none'
 
 export const selectCls = `${inputCls} appearance-none cursor-pointer`

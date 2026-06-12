@@ -33,7 +33,7 @@ function CashRow({ account }: { account: CashAccount }) {
   }
 
   return (
-    <tr className="group border-b border-edge transition-colors duration-150 last:border-b-0 hover:bg-overlay/50">
+    <tr className="group border-b border-white/5 transition-colors duration-150 last:border-b-0 hover:bg-white/[0.03]">
       <td className="px-5 py-3 text-sm text-primary">{account.accountName}</td>
       <td className="px-4 py-3">
         <span className="text-[13px] text-secondary">{account.currency}</span>
@@ -97,11 +97,11 @@ export function CashSection() {
           onCta={() => openModal(null)}
         />
       ) : (
-        <div className="rounded-card overflow-hidden border border-edge bg-elevated">
+        <div className="rounded-card glass-card overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px]">
               <thead>
-                <tr className="border-b border-edge">
+                <tr className="border-b border-white/10">
                   <th className="label-caps-xs px-5 py-3 text-left font-medium">Account</th>
                   <th className="label-caps-xs px-4 py-3 text-left font-medium">Currency</th>
                   <th className="label-caps-xs px-4 py-3 text-right font-medium">Balance</th>
@@ -119,7 +119,7 @@ export function CashSection() {
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-end gap-4 border-t border-edge px-5 py-3">
+          <div className="flex items-center justify-end gap-4 border-t border-white/10 px-5 py-3">
             <span className="label-caps-xs">Cash total</span>
             <span className="font-mono text-sm font-medium text-primary">{formatUsd(cashUsd)}</span>
           </div>

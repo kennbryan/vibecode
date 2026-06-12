@@ -45,10 +45,10 @@ function HiddenRow({ walletId, hidden }: {
   )
 
   return (
-    <div className="border-t border-edge">
+    <div className="border-t border-white/5">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full cursor-pointer items-center gap-2 px-5 py-2.5 text-left transition-colors hover:bg-overlay/50"
+        className="flex w-full cursor-pointer items-center gap-2 px-5 py-2.5 text-left transition-colors hover:bg-white/[0.03]"
         aria-expanded={open}
       >
         <EyeOff size={12} className="text-muted" />
@@ -109,10 +109,10 @@ function ChainGroup({ chainId, holdings, holdingValueUsd }: {
     <div>
       <button
         onClick={() => setOpen((v) => !v)}
-        className="flex w-full cursor-pointer items-center gap-2 border-b border-edge px-5 py-2 text-left transition-colors hover:bg-overlay/50"
+        className="flex w-full cursor-pointer items-center gap-2 border-b border-white/5 px-5 py-2 text-left transition-colors hover:bg-white/[0.03]"
         aria-expanded={open}
       >
-        <span className="size-1.5 rounded-full" style={{ background: chain?.color ?? '#52525B' }} />
+        <span className="size-1.5 rounded-full" style={{ background: chain?.color ?? '#52525B', boxShadow: `0 0 6px ${chain?.color ?? '#52525B'}50` }} />
         <span className="label-caps-xs">{chain?.name ?? chainId}</span>
         {holdings.length === 0 && <span className="text-[11px] text-muted">empty</span>}
         <ChevronDown
@@ -125,7 +125,7 @@ function ChainGroup({ chainId, holdings, holdingValueUsd }: {
           {visible.map((h) => (
             <li
               key={h.id}
-              className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-2 transition-colors duration-150 hover:bg-overlay/50"
+              className="grid grid-cols-[1fr_auto_auto] items-center gap-4 px-5 py-2 transition-colors duration-150 hover:bg-white/[0.03]"
             >
               <div className="min-w-0">
                 <span className="text-sm text-primary">{h.symbol}</span>
@@ -143,7 +143,7 @@ function ChainGroup({ chainId, holdings, holdingValueUsd }: {
             <li>
               <button
                 onClick={() => setShowAll((v) => !v)}
-                className="w-full cursor-pointer px-5 py-2 text-left text-xs text-muted transition-colors hover:bg-overlay/50 hover:text-secondary"
+                className="w-full cursor-pointer px-5 py-2 text-left text-xs text-muted transition-colors hover:bg-white/[0.03] hover:text-secondary"
               >
                 {hidden > 0 ? `Show ${hidden} more` : 'Show less'}
               </button>
@@ -208,14 +208,17 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
   }
 
   return (
-    <div className="rounded-card overflow-hidden border border-edge bg-elevated transition-colors duration-150 hover:border-edge-strong">
+    <div className="rounded-card glass-card overflow-hidden relative">
+      {/* Left accent border */}
+      <div className="absolute left-0 top-0 bottom-0 w-[2px] rounded-l-full bg-gradient-to-b from-accent/60 via-accent/20 to-transparent" />
+
       {/* header */}
-      <div className="flex items-center gap-3 px-5 py-4">
+      <div className="flex items-center gap-3 px-5 py-4 pl-6">
         <div className="min-w-0">
           <div className="flex items-center gap-2.5">
             <span className="truncate text-sm font-medium text-primary">{wallet.label}</span>
             {chainCount > 0 && (
-              <span className="shrink-0 rounded-md border border-edge px-1.5 py-0.5 text-[11px] text-muted">
+              <span className="shrink-0 rounded-md border border-white/10 bg-white/5 px-1.5 py-0.5 text-[11px] text-muted">
                 {chainCount} {chainCount === 1 ? 'chain' : 'chains'}
               </span>
             )}
@@ -259,12 +262,12 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
             : 'Not scanned yet — hit refresh.'}
         </p>
       ) : (
-        <div className="border-t border-edge">
+        <div className="border-t border-white/5">
           {byChain.map(([chainId, hs]) => (
             <ChainGroup key={chainId} chainId={chainId} holdings={hs} holdingValueUsd={holdingValueUsd} />
           ))}
           {hidden.count > 0 && <HiddenRow walletId={wallet.id} hidden={hidden} />}
-          <div className="flex items-center justify-end gap-4 border-t border-edge px-5 py-3">
+          <div className="flex items-center justify-end gap-4 border-t border-white/5 px-5 py-3">
             <span className="label-caps-xs">Wallet subtotal</span>
             <span className="font-mono text-sm font-medium text-primary">{formatUsd(subtotal)}</span>
           </div>
@@ -272,7 +275,7 @@ export function WalletCard({ wallet }: { wallet: Wallet }) {
       )}
 
       {failedNames && (
-        <p className="border-t border-edge px-5 py-2.5 text-xs text-muted">
+        <p className="border-t border-white/5 px-5 py-2.5 text-xs text-muted">
           Couldn't reach: {failedNames}
         </p>
       )}

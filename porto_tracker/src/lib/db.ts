@@ -75,6 +75,18 @@ export interface Settings {
   lastUpdated: number | null
 }
 
+/** a point-in-time net-worth record, captured on each refresh — powers History */
+export interface Snapshot {
+  id: string
+  ts: number
+  totalUsd: number
+  cryptoUsd: number
+  stocksUsd: number
+  cashUsd: number
+  /** stored so historical IDR values can be re-derived */
+  fxRate: number | null
+}
+
 export const DEFAULT_SETTINGS: Settings = {
   key: 'app',
   fxRate: null,
@@ -93,6 +105,7 @@ export const db = new Dexie('vault') as Dexie & {
   stocks: EntityTable<Stock, 'id'>
   cash: EntityTable<CashAccount, 'id'>
   settings: EntityTable<Settings, 'key'>
+  snapshots: EntityTable<Snapshot, 'id'>
 }
 
 db.version(1).stores({
@@ -116,6 +129,17 @@ db.version(2)
   })
   .upgrade((tx) => tx.table('holdings').clear())
 
+// v3: net-worth snapshots for the History page. Purely additive — existing
+// data is preserved (no upgrade callback needed).
+db.version(3).stores({
+  wallets: 'id, address',
+  holdings: 'id, walletId, chainId',
+  stocks: 'id, ticker',
+  cash: 'id',
+  settings: 'key',
+  snapshots: 'id, ts',
+})
+
 export async function getSettings(): Promise<Settings> {
   return (await db.settings.get('app')) ?? DEFAULT_SETTINGS
 }
@@ -127,6 +151,22 @@ export async function patchSettings(patch: Partial<Omit<Settings, 'key'>>) {
 
 export const uid = () =>
   crypto.randomUUID ? crypto.randomUUID() : `${Date.now()}-${Math.random()}`
+
+const SNAPSHOT_DEDUP_MS = 5 * 60_000
+
+/**
+ * Record a net-worth snapshot. To avoid spamming rows when the user mashes
+ * refresh, if the most recent snapshot is < 5 minutes old we update it in
+ * place rather than appending a new point.
+ */
+export async function addSnapshot(s: Omit<Snapshot, 'id'>): Promise<void> {
+  const latest = await db.snapshots.orderBy('ts').last()
+  if (latest && s.ts - latest.ts < SNAPSHOT_DEDUP_MS) {
+    await db.snapshots.update(latest.id, { ...s, id: latest.id })
+  } else {
+    await db.snapshots.add({ ...s, id: uid() })
+  }
+}
 
 /**
  * Ask the browser to mark our storage as persistent so it is never evicted

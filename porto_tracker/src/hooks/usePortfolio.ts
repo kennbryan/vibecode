@@ -1,6 +1,12 @@
 import { useLiveQuery } from 'dexie-react-hooks'
 import { useMemo } from 'react'
 import { db, DEFAULT_SETTINGS, type Holding, type Settings, type Stock, type CashAccount, type Wallet } from '../lib/db'
+import {
+  cashValueUsd as cashValueUsdPure,
+  holdingValueUsd as holdingValueUsdPure,
+  isCounted,
+  stockValueUsd as stockValueUsdPure,
+} from '../lib/portfolioMath'
 
 export interface Portfolio {
   loaded: boolean
@@ -42,15 +48,11 @@ export function usePortfolio(): Portfolio {
       settings !== undefined || wallets !== undefined // first query resolution
     const fxRate = s.fxRate
 
-    const holdingValueUsd = (h: Holding) => h.amount * (h.priceUsd ?? 0)
+    const holdingValueUsd = holdingValueUsdPure
     const all = holdings ?? []
 
-    // A holding counts only if it's verified (native or on the token list) AND
-    // worth more than the dust threshold. Verified tokens with a null price are
-    // dropped too — better to omit than to show a wrong number.
-    const counted = all.filter(
-      (h) => h.verified && h.priceUsd != null && holdingValueUsd(h) >= s.dustThresholdUsd,
-    )
+    // counted = verified + priced + above dust (see portfolioMath.isCounted)
+    const counted = all.filter((h) => isCounted(h, s.dustThresholdUsd))
 
     // everything else, grouped per wallet for the collapsible "hidden" row
     const countedSet = new Set(counted.map((h) => h.id))
@@ -71,23 +73,10 @@ export function usePortfolio(): Portfolio {
 
     const cryptoUsd = counted.reduce((sum, h) => sum + holdingValueUsd(h), 0)
 
-    const stockValueUsd = (st: Stock) => {
-      if (st.priceNative == null) return 0
-      const native = st.priceNative * st.shares
-      if (st.currency === 'IDR') return fxRate ? native / fxRate : 0
-      return native
-    }
+    const stockValueUsd = (st: Stock) => stockValueUsdPure(st, fxRate)
     const stocksUsd = (stocks ?? []).reduce((sum, st) => sum + stockValueUsd(st), 0)
 
-    const cashValueUsd = (c: CashAccount): { usd: number; assumed: boolean } => {
-      if (c.currency === 'USD') return { usd: c.balance, assumed: false }
-      if (c.currency === 'IDR') {
-        return fxRate ? { usd: c.balance / fxRate, assumed: false } : { usd: 0, assumed: true }
-      }
-      const rate = s.crossRates[c.currency]
-      if (rate && rate > 0) return { usd: c.balance / rate, assumed: false }
-      return { usd: c.balance, assumed: true } // 1:1 with a visible warning
-    }
+    const cashValueUsd = (c: CashAccount) => cashValueUsdPure(c, fxRate, s.crossRates)
     const cashUsd = (cash ?? []).reduce((sum, c) => sum + cashValueUsd(c).usd, 0)
 
     const totalUsd = cryptoUsd + stocksUsd + cashUsd
