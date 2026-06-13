@@ -140,6 +140,21 @@ input[type='number'] {
   border-radius: 6px;
 }
 
+/* Native <select> dropdowns render their option list via the OS, ignoring
+   Tailwind classes on the parent. Force dark colors on the control and its
+   options so the menu isn't a white-on-light blob in the dark theme. */
+@utility select-dark {
+  color-scheme: dark;
+}
+.select-dark option {
+  background-color: #1c1c20;
+  color: #f5f5f7;
+}
+.select-dark option:checked,
+.select-dark option:hover {
+  background-color: #2a2a30;
+}
+
 /* ─────────────────────────── layer components ────────────────────────────── */
 
 @layer components {

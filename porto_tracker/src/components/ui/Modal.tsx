@@ -70,4 +70,4 @@ export function Field({ label, children, hint }: { label: string; children: Reac
 export const inputCls =
   'w-full h-10 rounded-lg border border-white/10 bg-white/5 px-3 text-sm text-primary placeholder:text-muted transition-colors duration-150 focus:border-accent/60 focus:outline-none'
 
-export const selectCls = `${inputCls} appearance-none cursor-pointer`
+export const selectCls = `${inputCls} select-dark appearance-none cursor-pointer bg-overlay`
