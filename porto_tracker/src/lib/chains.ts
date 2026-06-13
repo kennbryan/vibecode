@@ -3,8 +3,10 @@
  * Adding a chain is one entry here; nothing else in the app changes.
  *
  * Two EVM provider kinds:
- *  - `blockscout`: full token discovery + prices via a public Blockscout
- *    instance (no API key).
+ *  - `blockscout`: token discovery via a public Blockscout instance (no API
+ *    key). The native coin balance comes from `rpcUrl` (live JSON-RPC) when
+ *    set, because Blockscout's indexed `coin_balance` can lag the chain head
+ *    by minutes — RPC `eth_getBalance` is always current.
  *  - `rpc`: chains without a keyless indexer — native balance via JSON-RPC
  *    plus a curated list of major tokens checked with `balanceOf`.
  */
@@ -18,7 +20,7 @@ export interface CuratedToken {
 }
 
 export type EvmProvider =
-  | { kind: 'blockscout'; baseUrl: string }
+  | { kind: 'blockscout'; baseUrl: string; rpcUrl?: string }
   | { kind: 'rpc'; rpcUrl: string; nativeCoingeckoId: string; tokens: CuratedToken[] }
 
 export interface ChainConfig {
@@ -37,17 +39,17 @@ export const EVM_CHAINS: ChainConfig[] = [
   {
     id: 'ethereum', name: 'Ethereum', family: 'evm',
     nativeSymbol: 'ETH', nativeName: 'Ether', nativeDecimals: 18, color: '#627EEA',
-    provider: { kind: 'blockscout', baseUrl: 'https://eth.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://eth.blockscout.com', rpcUrl: 'https://ethereum-rpc.publicnode.com' },
   },
   {
     id: 'base', name: 'Base', family: 'evm',
     nativeSymbol: 'ETH', nativeName: 'Ether', nativeDecimals: 18, color: '#0052FF',
-    provider: { kind: 'blockscout', baseUrl: 'https://base.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://base.blockscout.com', rpcUrl: 'https://base-rpc.publicnode.com' },
   },
   {
     id: 'arbitrum', name: 'Arbitrum', family: 'evm',
     nativeSymbol: 'ETH', nativeName: 'Ether', nativeDecimals: 18, color: '#28A0F0',
-    provider: { kind: 'blockscout', baseUrl: 'https://arbitrum.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://arbitrum.blockscout.com', rpcUrl: 'https://arbitrum-one-rpc.publicnode.com' },
   },
   {
     // optimism.blockscout.com doesn't send CORS headers — use the official RPC
@@ -70,17 +72,17 @@ export const EVM_CHAINS: ChainConfig[] = [
   {
     id: 'polygon', name: 'Polygon', family: 'evm',
     nativeSymbol: 'POL', nativeName: 'Polygon', nativeDecimals: 18, color: '#8247E5',
-    provider: { kind: 'blockscout', baseUrl: 'https://polygon.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://polygon.blockscout.com', rpcUrl: 'https://polygon-bor-rpc.publicnode.com' },
   },
   {
     id: 'gnosis', name: 'Gnosis', family: 'evm',
     nativeSymbol: 'XDAI', nativeName: 'xDai', nativeDecimals: 18, color: '#04795B',
-    provider: { kind: 'blockscout', baseUrl: 'https://gnosis.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://gnosis.blockscout.com', rpcUrl: 'https://gnosis-rpc.publicnode.com' },
   },
   {
     id: 'zksync', name: 'zkSync Era', family: 'evm',
     nativeSymbol: 'ETH', nativeName: 'Ether', nativeDecimals: 18, color: '#8C8DFC',
-    provider: { kind: 'blockscout', baseUrl: 'https://zksync.blockscout.com' },
+    provider: { kind: 'blockscout', baseUrl: 'https://zksync.blockscout.com', rpcUrl: 'https://mainnet.era.zksync.io' },
   },
   {
     // scroll.blockscout.com doesn't send CORS headers — use the official RPC

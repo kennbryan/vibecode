@@ -59,28 +59,43 @@ interface BsTokenBalance {
 async function fetchBlockscout(
   chain: ChainConfig,
   baseUrl: string,
+  rpcUrl: string | undefined,
   address: string,
   prices: Record<string, number>,
 ): Promise<RawHolding[]> {
   const holdings: RawHolding[] = []
 
-  // native balance (404 = address never seen on this chain → zero)
-  const addrInfo = await getJson<BsAddress>(`${baseUrl}/api/v2/addresses/${address}`).catch(
-    (e: Error) => {
-      if (e.message.startsWith('404')) return null
-      throw e
-    },
-  )
+  // Native balance: prefer the live RPC (always current). Blockscout's indexed
+  // coin_balance can lag the chain head by minutes, which showed stale ETH.
+  let nativeAmount = 0
+  if (rpcUrl) {
+    try {
+      const balHex = await rpcCall<string>(rpcUrl, 'eth_getBalance', [address, 'latest'])
+      nativeAmount = fromUnits(BigInt(balHex).toString(), chain.nativeDecimals)
+    } catch {
+      // RPC blip → fall back to Blockscout's (possibly stale) value below
+    }
+  }
+  if (nativeAmount === 0) {
+    const addrInfo = await getJson<BsAddress>(`${baseUrl}/api/v2/addresses/${address}`).catch(
+      (e: Error) => {
+        if (e.message.startsWith('404')) return null
+        throw e
+      },
+    )
+    if (addrInfo?.coin_balance && addrInfo.coin_balance !== '0') {
+      nativeAmount = fromUnits(addrInfo.coin_balance, chain.nativeDecimals)
+    }
+  }
 
-  if (addrInfo?.coin_balance && addrInfo.coin_balance !== '0') {
-    const amount = fromUnits(addrInfo.coin_balance, chain.nativeDecimals)
+  if (nativeAmount > 0) {
     const nativeId = NATIVE_COINGECKO[chain.id]
     holdings.push({
       chainId: chain.id,
       symbol: chain.nativeSymbol,
       name: chain.nativeName,
       contractAddress: null,
-      amount,
+      amount: nativeAmount,
       priceUsd: nativeId ? (prices[nativeId] ?? null) : null,
       verified: true, // native always counts
     })
@@ -210,7 +225,7 @@ export async function fetchEvmChain(
 ): Promise<RawHolding[]> {
   if (!chain.provider) return []
   if (chain.provider.kind === 'blockscout') {
-    return fetchBlockscout(chain, chain.provider.baseUrl, address, prices)
+    return fetchBlockscout(chain, chain.provider.baseUrl, chain.provider.rpcUrl, address, prices)
   }
   return fetchRpcChain(chain, chain.provider, address, prices)
 }
