@@ -100,20 +100,18 @@ export async function refreshWallet(
     // single-wallet refresh resolves prices from the shared cache (no 429)
     const px = prices ?? (await getPrices())
     const { holdings, failed } = await fetchWalletHoldings(wallet, px)
-
-    // if every chain failed, keep the previous snapshot instead of wiping it
-    const totalChains = wallet.family === 'evm' ? EVM_CHAINS.length : 1
-    const allFailed = failed.length >= totalChains
     const now = Date.now()
+    const failedSet = new Set(failed)
 
-    // Preserve last-good prices: if a token came back without a price this time
-    // (transient price gap), reuse the price from the existing row so a verified
-    // holding never silently drops to $0.
     const prev = await db.holdings.where('walletId').equals(walletId).toArray()
     const prevPrice = new Map(
       prev.map((h) => [`${h.chainId}:${h.contractAddress ?? 'native'}`, h.priceUsd]),
     )
-    const patched = holdings.map((h) => {
+
+    // Preserve last-good prices: if a token came back without a price this time
+    // (transient price gap), reuse the price from the existing row so a verified
+    // holding never silently drops to $0.
+    const fresh = holdings.map((h) => {
       if (h.verified && h.priceUsd == null) {
         const key = `${h.chainId}:${h.contractAddress ?? 'native'}`
         const last = prevPrice.get(key)
@@ -122,13 +120,30 @@ export async function refreshWallet(
       return h
     })
 
+    // PER-CHAIN PRESERVATION: only the chains that succeeded get replaced.
+    // For chains that failed (timeout/error this run), keep their PREVIOUS
+    // holdings instead of wiping them — a transient failure on one chain must
+    // never erase that chain's real balance. This is the fix for "some wallets
+    // don't change / a balance disappears on refresh".
+    const keptFromFailed = prev.filter((h) => failedSet.has(h.chainId))
+    const next = [...fresh, ...keptFromFailed]
+
     await db.transaction('rw', db.holdings, db.wallets, async () => {
-      if (!allFailed) {
-        await db.holdings.where('walletId').equals(walletId).delete()
-        await db.holdings.bulkAdd(
-          patched.map((h) => ({ ...h, id: uid(), walletId, lastFetched: now })),
-        )
-      }
+      await db.holdings.where('walletId').equals(walletId).delete()
+      await db.holdings.bulkAdd(
+        next.map((h) => ({
+          chainId: h.chainId,
+          symbol: h.symbol,
+          name: h.name,
+          contractAddress: h.contractAddress,
+          amount: h.amount,
+          priceUsd: h.priceUsd,
+          verified: h.verified,
+          id: uid(),
+          walletId,
+          lastFetched: now,
+        })),
+      )
       await db.wallets.update(walletId, { lastFetched: now, failedChains: failed })
     })
   } finally {

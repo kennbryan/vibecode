@@ -29,7 +29,11 @@ async function getJson<T>(url: string, init?: RequestInit): Promise<T> {
       return (await res.json()) as T
     } catch (e) {
       lastErr = e instanceof Error ? e : new Error(String(e))
-      const retryable = lastErr.message.startsWith('retryable') || lastErr.name === 'TimeoutError'
+      // timeouts surface as TimeoutError or AbortError depending on the engine
+      const retryable =
+        lastErr.message.startsWith('retryable') ||
+        lastErr.name === 'TimeoutError' ||
+        lastErr.name === 'AbortError'
       if (!retryable || attempt === 2) throw lastErr
       await sleep(500 * (attempt + 1) + Math.random() * 400)
     }
@@ -90,6 +94,8 @@ async function fetchBlockscout(
   })
 
   for (const tb of tokens) {
+    // some explorer rows have a null token object — skip defensively
+    if (!tb.token) continue
     // fungible only — NFTs (ERC-721/1155) are out of scope
     if (tb.token.type !== 'ERC-20') continue
     const decimals = Number(tb.token.decimals ?? '18')
